@@ -72,6 +72,8 @@ namespace VL.Audio
         private Thread processingThread;
         private bool stopFlag = false;
 
+        private Subject<float[]> fftSubject = new Subject<float[]>();
+
         private void OnBufferReady(float[] buffer)
         {
             bufferReady = true;
@@ -207,19 +209,23 @@ namespace VL.Audio
                 var newValue = (float)Decibels.LinearToDecibels(Math.Max(complex[n].MagnitudeSquared, FMindB)) / FdBRange + 1;
                 FFTOutThreadInternal[n] = newValue * (1 - Smoothing) + lastValue * Smoothing;
             }
-            lock (FFTOutInternal)
-            {
-                Array.Copy(FFTOutThreadInternal, FFTOutInternal, halfSize);
-            }
+
+            // Push the calculated FFT data to the subject
+            fftSubject.OnNext(FFTOutThreadInternal);
         }
 
-        public float[] GetFFT()
+        /// <summary>
+        /// Call this from the Mainloop to trigger the FFT calculation
+        /// </summary>
+        public void Trigger()
         {
             processingTrigger.Set();
-            lock (FFTOutInternal)
-            {
-                return FFTOutInternal;
-            }
+        }
+
+
+        public IObservable<float[]> GetFFTObservable()
+        {
+            return fftSubject.AsObservable();
         }
     }
 }
