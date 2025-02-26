@@ -155,7 +155,6 @@ namespace VL.Audio
         double[] FFFTBuffer = new double[1];
         Complex[] FFFTComplexBuffer = new Complex[1];
         float[] FFTOutThreadInternal = new float[2];
-        float[] FFTOutInternal = new float[2];
         double[] FWindow = new double[1];
         private float FdBRange;
 
@@ -172,7 +171,6 @@ namespace VL.Audio
                     bufferReady = false;
                     FFFTBuffer = new double[fftSize];
                     FFFTComplexBuffer = new Complex[fftSize];
-                    FFTOutInternal = new float[fftSize/2];
                     FFTOutThreadInternal = new float[fftSize / 2];
                     FWindow = AudioUtils.CreateWindowDouble(fftSize, WindowFunc);
                 }
